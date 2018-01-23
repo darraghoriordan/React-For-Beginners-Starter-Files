@@ -2,16 +2,44 @@ import React from 'react'
 import Header from './Header'
 import Inventory from './Inventory'
 import Order from './Order'
+import sampleFishes from '../sample-fishes'
 
 class App extends React.Component {
-    render (){
+    constructor() {
+        super();
+
+        this.addFish = this.addFish.bind(this)
+        this.loadSampleFishes = this.loadSampleFishes.bind(this)
+        this.state = {
+            fishes: {},
+            order: {}
+        }
+    }
+
+    addFish(fish) {
+        const fishes = { ...this.state.fishes }
+
+        const timestamp = Date.now();
+
+        fishes[`fish-${timestamp}`] = fish
+
+        this.setState({ fishes: fishes })
+    }
+
+    loadSampleFishes() {
+        this.setState({
+            fishes: sampleFishes
+        })
+    }
+
+    render() {
         return (
             <div className="catch-of-the-day">
-            <div className="menu">
-            <Header tagline="Fresh Seafood Market"/>
-            </div>
-            <Order />
-            <Inventory/>
+                <div className="menu">
+                    <Header tagline="Fresh Seafood Market" />
+                </div>
+                <Order />
+                <Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} />
             </div>
         )
     }

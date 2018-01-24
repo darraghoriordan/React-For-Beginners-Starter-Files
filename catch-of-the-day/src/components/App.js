@@ -4,6 +4,7 @@ import Inventory from './Inventory'
 import Order from './Order'
 import sampleFishes from '../sample-fishes'
 import Fish from './Fish'
+import base from '../base'
 
 class App extends React.Component {
     constructor() {
@@ -18,7 +19,14 @@ class App extends React.Component {
             order: {}
         }
     }
+    componentWillMount() {
+        this.baseRef = base.syncState(`${this.props.params.storeId}/fishes`
+            , { context: this, state: 'fishes' })
+    }
 
+    componentWillUnmount(){
+        base.removeBinding(this.baseRef)
+    }
     addFish(fish) {
         const fishes = { ...this.state.fishes }
 
@@ -51,7 +59,7 @@ class App extends React.Component {
                         {Object.keys(this.state.fishes).map(key => <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />)}
                     </ul>
                 </div>
-                <Order />
+                <Order fishes={this.state.fishes} order={this.state.order} />
                 <Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} />
             </div>
         )

@@ -13,7 +13,7 @@ class App extends React.Component {
         this.addFish = this.addFish.bind(this)
         this.loadSampleFishes = this.loadSampleFishes.bind(this)
         this.addToOrder = this.addToOrder.bind(this)
-
+        this.updateFish = this.updateFish.bind(this)
         this.state = {
             fishes: {},
             order: {}
@@ -22,11 +22,23 @@ class App extends React.Component {
     componentWillMount() {
         this.baseRef = base.syncState(`${this.props.params.storeId}/fishes`
             , { context: this, state: 'fishes' })
+
+        const localStorageRef = localStorage.getItem(`order-${this.props.params.storeId}`)
+
+        if (localStorageRef) {
+            this.setState({ order: JSON.parse(localStorageRef) })
+        }
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         base.removeBinding(this.baseRef)
     }
+
+    componentWillUpdate(nextProps, nextState) {
+        localStorage.setItem(`order-${this.props.params.storeId}`, JSON.stringify(nextState.order))
+
+    }
+
     addFish(fish) {
         const fishes = { ...this.state.fishes }
 
@@ -35,6 +47,13 @@ class App extends React.Component {
         fishes[`fish-${timestamp}`] = fish
 
         this.setState({ fishes: fishes })
+    }
+
+    updateFish(key, updatedFish) {
+        const fishes = this.state.fishes
+        fishes[key] = updatedFish
+
+        this.setState({ fishes })
     }
 
     loadSampleFishes() {
@@ -59,8 +78,8 @@ class App extends React.Component {
                         {Object.keys(this.state.fishes).map(key => <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />)}
                     </ul>
                 </div>
-                <Order fishes={this.state.fishes} order={this.state.order} />
-                <Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} />
+                <Order fishes={this.state.fishes} order={this.state.order} params={this.props.params} />
+                <Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} fishes={this.state.fishes} updateFish={this.updateFish} />
             </div>
         )
     }
